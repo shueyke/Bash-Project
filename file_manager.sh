@@ -4,9 +4,16 @@
 display_usage() {
     echo "Usage: $0 -o <owner:user> -p <permissions> -f <file/directory>"
     echo "Options:"
+    echo ""
     echo "  -o <owner:user>      Change the ownership to the specified user and group."
-    echo "  -p <permissions>     Change the permissions to the specified numeric value."
+    echo ""
+    echo "  -p <permissions>     Change the permissions to a specified 3 digit number where each digit ranges from 0-7. 
+                        read permissions = 4, write permissions = 2 and execute permissions = 1. The first digit
+                        represents the owners permissions, the second digit represents the groups permissions, and the 
+                        third digit represents the permissions for everyone else"
+    echo "" 
     echo "  -f <file/directory>  Specify the file or directory to change."
+    echo ""
     echo "  -h                   Display this help message."
     exit 1
 }
@@ -24,16 +31,16 @@ validate_ownership() {
 # Parse command-line options
 while getopts "o:p:f:h" opt; do
     case $opt in
-        o)
+        o) # option o
             owner="$OPTARG"
             ;;
-        p)
+        p) # option p
             permissions="$OPTARG"
             ;;
-        f)
+        f) # option f
             filepath="$OPTARG"
             ;;
-        h)
+        h) # option h
             display_usage
             exit 0
             ;;
@@ -52,7 +59,7 @@ done
 # Check if at least one option is provided
 if [ -z "$owner" ] && [ -z "$permissions" ]; then
     echo "Error: You must specify at least one of -o or -p."
-    usage
+    display_usage
 fi
 
 # Check if the file/directory exists
@@ -79,12 +86,12 @@ fi
 if [ -n "$permissions" ]; then
     if validate_permissions "$permissions"; then
         chmod "$permissions" "$filepath"
-        echo "Permissions of '$filepath' changed to '$permissions'."
         echo " "
-        ls -l $path
+        echo "Permissions of '$filepath' changed to '$permissions'."
+        ls -l $filepath
         echo " "
     else
-        echo "Error: Invalid permissions format. Use numeric (e.g., 755)."
+        echo "Error: Invalid permissions format. Use numeric (ex. 755)."
         exit 1
     fi
 fi
