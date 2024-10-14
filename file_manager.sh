@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Function to display usage information
-usage() {
+display_usage() {
     echo "Usage: $0 -o <owner:user> -p <permissions> -f <file/directory>"
     echo "Options:"
     echo "  -o <owner:user>      Change the ownership to the specified user and group."
@@ -31,13 +31,20 @@ while getopts "o:p:f:h" opt; do
             permissions="$OPTARG"
             ;;
         f)
-            path="$OPTARG"
+            filepath="$OPTARG"
             ;;
         h)
-            usage
+            display_usage
+            exit 0
             ;;
         \?)
-            usage
+            display_usage
+            exit 0
+            ;;
+        :) #no arguement
+            echo "option $OPTARG requires and arguement"
+            display_usage
+            exit 1
             ;;
     esac
 done
@@ -49,16 +56,19 @@ if [ -z "$owner" ] && [ -z "$permissions" ]; then
 fi
 
 # Check if the file/directory exists
-if [ -n "$path" ] && [ ! -e "$path" ]; then
-    echo "Error: '$path' does not exist."
+if [ -n "$filepath" ] && [ ! -e "$filepath" ]; then
+    echo "Error: '$filepath' does not exist."
     exit 1
 fi
 
 # Validate ownership if specified
 if [ -n "$owner" ]; then
     if validate_ownership "$owner"; then
-        sudo chown "$owner" "$path"
-        echo "Ownership of '$path' changed to '$owner'."
+        sudo chown "$owner" "$filepath"
+        echo "Ownership of '$filepath' changed to '$owner'."
+        echo " "
+        ls -l $filepath
+        echo " "
     else
         echo "Error: Invalid ownership format. Use 'user:group'."
         exit 1
@@ -68,8 +78,11 @@ fi
 # Validate permissions if specified
 if [ -n "$permissions" ]; then
     if validate_permissions "$permissions"; then
-        chmod "$permissions" "$path"
-        echo "Permissions of '$path' changed to '$permissions'."
+        chmod "$permissions" "$filepath"
+        echo "Permissions of '$filepath' changed to '$permissions'."
+        echo " "
+        ls -l $path
+        echo " "
     else
         echo "Error: Invalid permissions format. Use numeric (e.g., 755)."
         exit 1
