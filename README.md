@@ -26,3 +26,5 @@ The script will check if the file exists if it does it will perform the inputted
 The—o option requires input as user:group; however, currently, it will not catch whether the user or group exists.
 It will prompt the user with the display usage if it is not input correctly.
 If the user/group does not exist the script will run, tell the user the desired user or group is invalid, and echo the ls -l file.
+
+When you are inputting the options it is important to make sure you include -f otherwise it will make the changes to an empty string, in other words, it would say it made changes but no changes would be made to the specified file(s).
